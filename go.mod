@@ -1,4 +1,4 @@
-module github.com/ororsatti/hoblot
+module github.com/ororsatti/go-hoblot
 
 go 1.23.0
 

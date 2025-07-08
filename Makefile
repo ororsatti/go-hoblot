@@ -1,2 +1,6 @@
-run:
-	go run main.go
+run: build
+	./bin/hoblot
+
+build: 
+	go build -o ./bin/hoblot main.go
+	
