@@ -4,3 +4,5 @@ run: build
 build: 
 	go build -o ./bin/hoblot main.go
 	
+test: 
+	go test -v ./...
