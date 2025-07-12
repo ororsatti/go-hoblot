@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-type node[T any] struct {
-	Children map[string]*node[T]
-	Data     *T
+type node struct {
+	Children map[string]*node
+	Data     any
 }
 
 type SearchResult struct {
@@ -18,8 +18,8 @@ type SearchResult struct {
 	Data     any
 }
 
-type nodePath[T any] struct {
-	node *node[T]
+type nodePath struct {
+	node *node
 	key  string
 }
 
@@ -30,21 +30,21 @@ func NewSearchResult(distance int, data any) SearchResult {
 	}
 }
 
-func newNode[T any]() *node[T] {
-	return &node[T]{
-		Children: make(map[string]*node[T]),
+func newNode() *node {
+	return &node{
+		Children: make(map[string]*node),
 	}
 }
 
-func (n *node[T]) addChild(key string, newNode *node[T]) {
+func (n *node) addChild(key string, newNode *node) {
 	n.Children[key] = newNode
 }
 
-func (n *node[T]) removeChild(key string) {
+func (n *node) removeChild(key string) {
 	delete(n.Children, key)
 }
 
-func (n *node[T]) lookup(key string) *node[T] {
+func (n *node) lookup(key string) *node {
 	if key == "" {
 		return n
 	}
@@ -58,7 +58,7 @@ func (n *node[T]) lookup(key string) *node[T] {
 	return n
 }
 
-func cleanup[T any](path []nodePath[T]) {
+func cleanup(path []nodePath) {
 	p := path[len(path)-1]
 
 	delete(p.node.Children, p.key)
@@ -80,7 +80,7 @@ func cleanup[T any](path []nodePath[T]) {
 	}
 }
 
-func merge[T any](path []nodePath[T], keyToMerge string, nodeToMerge *node[T]) {
+func merge(path []nodePath, keyToMerge string, nodeToMerge *node) {
 	if len(path) == 0 {
 		return
 	}
@@ -90,20 +90,20 @@ func merge[T any](path []nodePath[T], keyToMerge string, nodeToMerge *node[T]) {
 	delete(last.node.Children, last.key)
 }
 
-func trackDown[T any](n *node[T], key string, path []nodePath[T]) (*node[T], []nodePath[T]) {
+func trackDown(n *node, key string, path []nodePath) (*node, []nodePath) {
 	if key == "" || n == nil {
 		return n, path
 	}
 
 	for childKey, child := range n.Children {
 		if strings.HasPrefix(key, childKey) {
-			path = append(path, nodePath[T]{node: n, key: childKey})
+			path = append(path, nodePath{node: n, key: childKey})
 
 			return trackDown(child, key[len(childKey):], path)
 		}
 	}
 
-	path = append(path, nodePath[T]{node: n, key: key})
+	path = append(path, nodePath{node: n, key: key})
 	return trackDown(nil, "", path)
 }
 
@@ -123,7 +123,7 @@ func findSplitIndex(src string, dest string) int {
 	}
 }
 
-func (n *node[T]) createPath(key string) *node[T] {
+func (n *node) createPath(key string) *node {
 	currentNode := n
 
 LOOP_KEY:
@@ -141,7 +141,7 @@ LOOP_KEY:
 			if splitIndex == len(childKey) {
 				currentNode = child
 			} else {
-				intermediate := newNode[T]()
+				intermediate := newNode()
 				intermediate.addChild(childKey[splitIndex:], child)
 
 				currentNode.addChild(childKey[:splitIndex], intermediate)
@@ -153,7 +153,7 @@ LOOP_KEY:
 			continue LOOP_KEY
 		}
 
-		child := newNode[T]()
+		child := newNode()
 		currentNode.addChild(key[i:], child)
 		return child
 	}
@@ -161,7 +161,7 @@ LOOP_KEY:
 	return currentNode
 }
 
-func (node *node[T]) fuzzyRecurse(
+func (node *node) fuzzyRecurse(
 	query, prefix string,
 	matrix []int,
 	maxDistance, m, n int,
@@ -217,7 +217,7 @@ ITER_CHILDREN:
 	}
 }
 
-func (n *node[T]) printRecursive(prefix string) {
+func (n *node) printRecursive(prefix string) {
 	keys := make([]string, 0, len(n.Children))
 	for key := range n.Children {
 		keys = append(keys, key)

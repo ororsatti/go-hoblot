@@ -6,33 +6,33 @@ import (
 	"maps"
 )
 
-type SearchableMap[T any] struct {
-	root *node[T]
+type SearchableMap struct {
+	root *node
 }
 
-func NewSearchableMap[T any]() *SearchableMap[T] {
-	return &SearchableMap[T]{
-		root: newNode[T](),
+func NewSearchableMap() *SearchableMap {
+	return &SearchableMap{
+		root: newNode(),
 	}
 }
 
-func (s *SearchableMap[T]) Set(key string, dataPtr *T) *node[T] {
+func (s *SearchableMap) Set(key string, data any) *node {
 	node := s.root.createPath(key)
-	node.Data = dataPtr
+	node.Data = data
 	return node
 }
 
-func (s *SearchableMap[T]) Get(key string) *node[T] {
+func (s *SearchableMap) Get(key string) any {
 	node := s.root.lookup(key)
 	if node.Data != nil {
-		return node
+		return node.Data
 	}
 
 	return nil
 }
 
-func (s *SearchableMap[T]) Delete(key string) {
-	node, path := trackDown(s.root, key, []nodePath[T]{})
+func (s *SearchableMap) Delete(key string) {
+	node, path := trackDown(s.root, key, []nodePath{})
 	if node == nil || node.Data == nil {
 		return
 	}
@@ -48,7 +48,7 @@ func (s *SearchableMap[T]) Delete(key string) {
 	}
 }
 
-func (s *SearchableMap[T]) FuzzyGet(query string, maxDistance int) map[string]SearchResult {
+func (s *SearchableMap) FuzzyGet(query string, maxDistance int) map[string]SearchResult {
 	w := len(query) + 1
 	h := w + maxDistance
 	matrix := make([]int, w*h)
@@ -67,7 +67,7 @@ func (s *SearchableMap[T]) FuzzyGet(query string, maxDistance int) map[string]Se
 	return results
 }
 
-func (s *SearchableMap[T]) Print() {
+func (s *SearchableMap) Print() {
 	fmt.Println("(r)")
 	s.root.printRecursive(" ")
 }
