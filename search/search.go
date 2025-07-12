@@ -1,13 +1,10 @@
 package search
 
 import (
-	"maps"
 	"math"
-	"slices"
 	"sort"
 	"strings"
 
-	"github.com/jdkato/prose/v2"
 	"github.com/ororsatti/go-hoblot/radix"
 )
 
@@ -18,8 +15,8 @@ const (
 
 // temp till i figure out the tags stuff
 type Document struct {
-	id      string
-	content string
+	Id      string
+	Content string
 }
 
 type docScore struct {
@@ -52,7 +49,7 @@ func New(docs []Document) *SearchIndex {
 }
 
 func (index *SearchIndex) indexDocument(doc Document) error {
-	termsFreq, err := getTermsFreq(doc.content)
+	termsFreq, err := getTermsFreq(doc.Content)
 	if err != nil {
 		return err
 	}
@@ -63,11 +60,11 @@ func (index *SearchIndex) indexDocument(doc Document) error {
 		if termInfo == nil {
 			index.smap.Set(term, &termInformation{
 				docsFreq: invertedIndex{
-					doc.id: calculateTf(freq, len(doc.content)),
+					doc.Id: calculateTf(freq, len(doc.Content)),
 				},
 			})
 		} else {
-			termInfo.docsFreq[doc.id] = calculateTf(freq, len(doc.content))
+			termInfo.docsFreq[doc.Id] = calculateTf(freq, len(doc.Content))
 			// update the score
 		}
 	}

@@ -59,6 +59,10 @@ func (n *node) lookup(key string) *node {
 }
 
 func cleanup(path []nodePath) {
+	if len(path) == 0 {
+		return
+	}
+
 	p := path[len(path)-1]
 
 	delete(p.node.Children, p.key)
