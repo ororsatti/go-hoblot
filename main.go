@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/ororsatti/go-hoblot/search"
+	"github.com/ororsatti/go-searchdex/search"
 )
 
 func clearScreen() {

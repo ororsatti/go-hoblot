@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/ororsatti/go-hoblot/radix"
+	"github.com/ororsatti/go-searchdex/radix"
 )
 
 const (

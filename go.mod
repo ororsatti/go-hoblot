@@ -1,4 +1,4 @@
-module github.com/ororsatti/go-hoblot
+module github.com/ororsatti/go-searchdex
 
 go 1.23.0
 

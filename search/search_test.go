@@ -9,16 +9,16 @@ import (
 func TestIndexDocument(t *testing.T) {
 	documents := []Document{
 		{
-			id:      "doc1",
-			content: "a b",
+			Id:      "doc1",
+			Content: "a b",
 		},
 		{
-			id:      "doc2",
-			content: "a b",
+			Id:      "doc2",
+			Content: "a b",
 		},
 		{
-			id:      "doc3",
-			content: "a c c",
+			Id:      "doc3",
+			Content: "a c c",
 		},
 	}
 
