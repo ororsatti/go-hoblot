@@ -2,6 +2,7 @@ package radix
 
 import (
 	"fmt"
+	"io"
 	"iter"
 	"maps"
 	"sort"
@@ -221,7 +222,7 @@ ITER_CHILDREN:
 	}
 }
 
-func (n *node) printRecursive(prefix string) {
+func (n *node) printRecursive(out io.Writer, prefix string) {
 	keys := make([]string, 0, len(n.Children))
 	for key := range n.Children {
 		keys = append(keys, key)
@@ -238,7 +239,7 @@ func (n *node) printRecursive(prefix string) {
 			branch = "└──"
 		}
 
-		fmt.Printf("%s%s %s\n", prefix, branch, key)
+		fmt.Fprintf(out, "%s%s %s\n", prefix, branch, key)
 
 		newPrefix := prefix
 		if isLastChild {
@@ -247,7 +248,7 @@ func (n *node) printRecursive(prefix string) {
 			newPrefix += "│   "
 		}
 
-		child.printRecursive(newPrefix)
+		child.printRecursive(out, newPrefix)
 	}
 }
 

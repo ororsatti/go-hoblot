@@ -2,6 +2,7 @@ package radix
 
 import (
 	"fmt"
+	"io"
 	"iter"
 	"maps"
 )
@@ -67,7 +68,7 @@ func (s *SearchableMap) FuzzyGet(query string, maxDistance int) map[string]Searc
 	return results
 }
 
-func (s *SearchableMap) print() {
-	fmt.Println("(r)")
-	s.root.printRecursive(" ")
+func (s *SearchableMap) Print(out io.Writer) {
+	fmt.Fprintln(out, "(r)")
+	s.root.printRecursive(out, " ")
 }

@@ -105,3 +105,62 @@ func TestDelete(t *testing.T) {
 		})
 	}
 }
+
+func TestFuzzyGet(t *testing.T) {
+	terms := []string{"wonder", "ponder", "wondering", "ball", "inter"}
+	testCases := []struct {
+		name        string
+		key         string
+		maxDistance int
+		results     map[string]SearchResult
+	}{
+		{
+			name:        "no results",
+			key:         "wombat",
+			maxDistance: 1,
+			results:     map[string]SearchResult{},
+		},
+		{
+			name:        "multiple results",
+			key:         "winter",
+			maxDistance: 3,
+			results: map[string]SearchResult{
+				"inter": {
+					Distance: 1,
+					Data:     true,
+				},
+				"wonder": {
+					Distance: 2,
+					Data:     true,
+				},
+				"ponder": {
+					Distance: 3,
+					Data:     true,
+				},
+			},
+		},
+		{
+			name:        "single result",
+			key:         "hall",
+			maxDistance: 1,
+			results: map[string]SearchResult{
+				"ball": {
+					Distance: 1,
+					Data:     true,
+				},
+			},
+		},
+	}
+
+	smap := NewSearchableMap()
+
+	for _, term := range terms {
+		smap.Set(term, true)
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(tt *testing.T) {
+			assert.Equal(tt, testCase.results, smap.FuzzyGet(testCase.key, testCase.maxDistance))
+		})
+	}
+}
