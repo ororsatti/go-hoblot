@@ -83,29 +83,19 @@ func (index *SearchIndex) Search(query string, maxDistance int) []string {
 	for _, queryTerm := range queryTerms {
 		fuzzyMatches := index.smap.FuzzyGet(queryTerm, maxDistance)
 
-		var bestMatch *radix.SearchResult
 		for _, match := range fuzzyMatches {
-			if bestMatch == nil || match.Distance < bestMatch.Distance {
-				bestMatch = &match
+			termInfo := match.Data.(*termInformation)
+			if termInfo == nil {
+				continue
 			}
-		}
 
-		if bestMatch == nil {
-			continue
-		}
+			idf := calculateIdf(index.docCount, len(termInfo.docsFreq))
+			edSimilarity := 1.0 - (float32(match.Distance) / float32(len(queryTerm)))
 
-		termInfo := bestMatch.Data.(*termInformation)
-		if termInfo == nil {
-			continue
-		}
-
-		idf := calculateIdf(index.docCount, len(termInfo.docsFreq))
-
-		edSimilarity := 1.0 - (float32(bestMatch.Distance) / float32(len(queryTerm)))
-
-		for docKey, tf := range termInfo.docsFreq {
-			combinedTermScore := (relevanceWeight * (tf * idf)) + (editWeight * edSimilarity)
-			relevantDocs[docKey] += combinedTermScore
+			for docKey, tf := range termInfo.docsFreq {
+				combinedTermScore := (relevanceWeight * (tf * idf)) + (editWeight * edSimilarity)
+				relevantDocs[docKey] += combinedTermScore
+			}
 		}
 	}
 
@@ -113,16 +103,13 @@ func (index *SearchIndex) Search(query string, maxDistance int) []string {
 	for key, score := range relevantDocs {
 		sortedResults = append(sortedResults, docScore{Key: key, Score: score})
 	}
-
 	sort.Slice(sortedResults, func(i, j int) bool {
 		return sortedResults[i].Score > sortedResults[j].Score
 	})
-
 	finalKeys := make([]string, len(sortedResults))
 	for i, res := range sortedResults {
 		finalKeys[i] = res.Key
 	}
-
 	return finalKeys
 }
 
