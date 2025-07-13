@@ -182,7 +182,7 @@ ITER_CHILDREN:
 
 		i := m
 
-		// finding the max possible key len.
+		// Finding the max possible key len.
 		// if the key length surpasses the amount of columns left, limit it to the columns left
 		// and calculate the rest as a carry-over.
 		maxKeyLen := min(len(key), n+maxDistance-m)

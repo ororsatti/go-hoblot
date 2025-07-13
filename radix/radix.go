@@ -67,7 +67,7 @@ func (s *SearchableMap) FuzzyGet(query string, maxDistance int) map[string]Searc
 	return results
 }
 
-func (s *SearchableMap) Print() {
+func (s *SearchableMap) print() {
 	fmt.Println("(r)")
 	s.root.printRecursive(" ")
 }
