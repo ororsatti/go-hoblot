@@ -10,3 +10,6 @@ A inmemory search index.
 - [ ] Index struct tags
 - [ ] Index at byte level
 - [ ] Generic searchable map
+- [ ] Fuzz testing the searchable map (will prob require other bugfixes)
+- [ ] More examples?
+- [ ] ...
