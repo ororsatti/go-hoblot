@@ -183,20 +183,22 @@ ITER_CHILDREN:
 
 		i := m
 
-		// Finding the max possible key len.
-		// if the key length surpasses the amount of columns left, limit it to the columns left
-		// and calculate the rest as a carry-over.
-		maxKeyLen := min(len(key), n+maxDistance-m)
-		carry := max(0, len(key)-maxKeyLen)
+		for pos := range len(key) {
+			jmin := max(0, i-maxDistance-1)
+			jmax := min(n-1, i+maxDistance)
 
-		for pos := range maxKeyLen {
+			if jmin >= jmax {
+				continue ITER_CHILDREN
+			}
+
 			thisRowOffset := n * i
 			prevRowOffset := thisRowOffset - n
+
 			minDistance := matrix[thisRowOffset]
 
-			for j, queryChar := range query {
+			for j := jmin; j < jmax; j++ {
 
-				diff := convertBool(queryChar != rune(key[pos]))
+				diff := convertBool(query[j] != key[pos])
 
 				replaceCost := matrix[prevRowOffset+j] + diff
 				deleteCost := matrix[prevRowOffset+j+1] + 1
@@ -211,7 +213,7 @@ ITER_CHILDREN:
 				matrix[thisRowOffset+j+1] = dist
 			}
 
-			if minDistance+carry > maxDistance {
+			if minDistance > maxDistance {
 				continue ITER_CHILDREN
 			}
 
