@@ -68,7 +68,7 @@ func (s *SearchableMap) FuzzyGet(query string, maxDistance int) map[string]Searc
 		mat[i][0] = i
 	}
 
-	s.root.fuzzyRecurse2(query, "", mat, maxDistance, 0, results)
+	s.root.fuzzyRecurse(query, "", mat, maxDistance, 0, results)
 
 	return results
 }

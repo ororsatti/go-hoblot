@@ -166,7 +166,7 @@ LOOP_KEY:
 	return currentNode
 }
 
-func (n *node) fuzzyRecurse2(query string, prefix string,
+func (n *node) fuzzyRecurse(query string, prefix string,
 	matrix [][]int,
 	maxDistance int,
 	row int,
@@ -180,23 +180,23 @@ func (n *node) fuzzyRecurse2(query string, prefix string,
 		}
 	}
 
-	maxRows := len(matrix) - 1
+	maxRows := len(matrix)
 	if row >= maxRows {
 		return
 	}
 
 	queryRunes := []rune(query)
-	queryLen := len(queryRunes)
 
 KEY_ITER:
 	for key, child := range n.Children {
 		keyRunes := []rune(key)
 		m := row
 
+		// fmt.Printf(">>>> %s <<<<\n", key)
 		for _, keyRune := range keyRunes {
 			m++
 
-			if m > maxRows {
+			if m >= maxRows {
 				continue KEY_ITER
 			}
 
@@ -215,11 +215,14 @@ KEY_ITER:
 					prevRow[j+1]+1,  // deletion
 				)
 			}
+
 		}
 
-		if matrix[m][queryLen] <= maxDistance {
-			child.fuzzyRecurse2(query, prefix+key, matrix, maxDistance, m, results)
+		if m < len(query)+maxDistance+1 {
+			child.fuzzyRecurse(query, prefix+key, matrix, maxDistance, m, results)
 		}
+
+		// fmt.Printf(">>>> end %s <<<<\n", key)
 	}
 }
 
@@ -240,7 +243,12 @@ func (n *node) printRecursive(out io.Writer, prefix string) {
 			branch = "└──"
 		}
 
-		fmt.Fprintf(out, "%s%s %s\n", prefix, branch, key)
+		mark := ""
+		if child.Data != nil {
+			mark = "*"
+		}
+
+		fmt.Fprintf(out, "%s%s %s %s\n", prefix, branch, key, mark)
 
 		newPrefix := prefix
 		if isLastChild {

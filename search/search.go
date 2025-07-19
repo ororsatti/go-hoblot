@@ -1,10 +1,12 @@
 package search
 
 import (
+	"errors"
 	"math"
 	"sort"
 	"strings"
 
+	parsetags "github.com/ororsatti/go-searchdex/parse_tags"
 	"github.com/ororsatti/go-searchdex/radix"
 )
 
@@ -12,12 +14,6 @@ const (
 	editWeight      = 0.5
 	relevanceWeight = 0.5
 )
-
-// temp till i figure out the tags stuff
-type Document struct {
-	Id      string
-	Content string
-}
 
 type docScore struct {
 	Key   string
@@ -35,7 +31,7 @@ type SearchIndex struct {
 	docCount int
 }
 
-func New(docs []Document) *SearchIndex {
+func New(docs []any) *SearchIndex {
 	index := SearchIndex{
 		smap:     radix.NewSearchableMap(),
 		docCount: len(docs),
@@ -48,8 +44,22 @@ func New(docs []Document) *SearchIndex {
 	return &index
 }
 
-func (index *SearchIndex) indexDocument(doc Document) error {
-	termsFreq, err := getTermsFreq(doc.Content)
+func (index *SearchIndex) indexDocument(doc any) error {
+	tp := parsetags.NewTagParser(doc)
+
+	docId, err := tp.GetID()
+	if err != nil {
+		return errors.Join(err, errors.New("Failed to index document"))
+	}
+
+	docContent, err := tp.GetText()
+	if err != nil {
+		return errors.Join(err, errors.New("Failed to index document"))
+	}
+
+	combinedContent := strings.Join(docContent, " ")
+
+	termsFreq, err := getTermsFreq(combinedContent)
 	if err != nil {
 		return err
 	}
@@ -60,11 +70,11 @@ func (index *SearchIndex) indexDocument(doc Document) error {
 		if termInfo == nil {
 			index.smap.Set(term, &termInformation{
 				docsFreq: invertedIndex{
-					doc.Id: calculateTf(freq, len(doc.Content)),
+					docId: calculateTf(freq, len(combinedContent)),
 				},
 			})
 		} else {
-			termInfo.docsFreq[doc.Id] = calculateTf(freq, len(doc.Content))
+			termInfo.docsFreq[docId] = calculateTf(freq, len(combinedContent))
 			// update the score
 		}
 	}
@@ -103,9 +113,11 @@ func (index *SearchIndex) Search(query string, maxDistance int) []string {
 	for key, score := range relevantDocs {
 		sortedResults = append(sortedResults, docScore{Key: key, Score: score})
 	}
+
 	sort.Slice(sortedResults, func(i, j int) bool {
 		return sortedResults[i].Score > sortedResults[j].Score
 	})
+
 	finalKeys := make([]string, len(sortedResults))
 	for i, res := range sortedResults {
 		finalKeys[i] = res.Key
@@ -113,7 +125,7 @@ func (index *SearchIndex) Search(query string, maxDistance int) []string {
 	return finalKeys
 }
 
-func (index *SearchIndex) IndexDocument(doc Document) error {
+func (index *SearchIndex) IndexDocument(doc any) error {
 	index.docCount++
 
 	if err := index.indexDocument(doc); err != nil {

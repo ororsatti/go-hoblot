@@ -1,22 +1,42 @@
 package main
 
 import (
-	parsetags "github.com/ororsatti/go-searchdex/parse_tags"
+	"fmt"
+
+	"github.com/ororsatti/go-searchdex/search"
 )
 
 type testStruct struct {
-	id          string `index:"id"`
-	name        string `index:"text"`
-	description string
+	Id          string `index:"id"`
+	Name        string `index:"text"`
+	Description string `index:"text"`
+}
+
+type doc struct {
+	Id      string `index:"id"`
+	Content string `index:"text"`
 }
 
 func main() {
-	test := testStruct{
-		id:          "123",
-		name:        "Jane",
-		description: "A masterious woman",
+	documents := []doc{
+		{
+			Id:      "doc1",
+			Content: "the quick brown fox",
+		},
+		{
+			Id:      "doc2",
+			Content: "jumps over the lazy dog",
+		},
+		{
+			Id:      "doc3",
+			Content: "a quick brown dog",
+		},
 	}
 
-	tp := parsetags.NewTagParser(test)
-	tp.GetID()
+	anys := make([]any, 3)
+	for i := range len(anys) {
+		anys[i] = documents[i]
+	}
+	index := search.New(anys)
+	fmt.Println(index.Search("fox", 0))
 }
