@@ -184,19 +184,13 @@ ITER_CHILDREN:
 		i := m
 
 		for pos := range len(key) {
-			jmin := max(0, i-maxDistance-1)
-			jmax := min(n-1, i+maxDistance)
-
-			if jmin >= jmax {
-				continue ITER_CHILDREN
-			}
 
 			thisRowOffset := n * i
 			prevRowOffset := thisRowOffset - n
 
 			minDistance := matrix[thisRowOffset]
 
-			for j := jmin; j < jmax; j++ {
+			for j := 0; j < n-1; j++ {
 
 				diff := convertBool(query[j] != key[pos])
 
