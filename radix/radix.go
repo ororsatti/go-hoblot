@@ -50,20 +50,25 @@ func (s *SearchableMap) Delete(key string) {
 }
 
 func (s *SearchableMap) FuzzyGet(query string, maxDistance int) map[string]SearchResult {
+	results := make(map[string]SearchResult)
+
 	w := len(query) + 1
 	h := w + maxDistance
-	matrix := make([]int, w*h)
+
+	mat := make([][]int, h)
+	for i := range mat {
+		mat[i] = make([]int, w)
+	}
 
 	for i := range w {
-		matrix[i] = i
+		mat[0][i] = i
 	}
 
 	for i := range h {
-		matrix[i*w] = i
+		mat[i][0] = i
 	}
 
-	results := make(map[string]SearchResult)
-	s.root.fuzzyRecurse(query, "", matrix, maxDistance, 1, w, results)
+	s.root.fuzzyRecurse2(query, "", mat, maxDistance, 0, results)
 
 	return results
 }
