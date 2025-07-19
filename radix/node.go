@@ -166,55 +166,60 @@ LOOP_KEY:
 	return currentNode
 }
 
-func (node *node) fuzzyRecurse(
-	query, prefix string,
-	matrix []int,
-	maxDistance, m, n int,
+func (n *node) fuzzyRecurse2(query string, prefix string,
+	matrix [][]int,
+	maxDistance int,
+	row int,
 	results map[string]SearchResult,
 ) {
-	if node.Data != nil {
-		if matrix[m*n-1] <= maxDistance {
-			results[prefix] = NewSearchResult(matrix[m*n-1], node.Data)
+	if n.Data != nil {
+		dist := matrix[row][len(query)]
+
+		if dist <= maxDistance {
+			results[prefix] = NewSearchResult(dist, n.Data)
 		}
 	}
 
-ITER_CHILDREN:
-	for key, child := range node.Children {
+	maxRows := len(matrix) - 1
+	if row >= maxRows {
+		return
+	}
 
-		i := m
+	queryRunes := []rune(query)
+	queryLen := len(queryRunes)
 
-		for pos := range len(key) {
+KEY_ITER:
+	for key, child := range n.Children {
+		keyRunes := []rune(key)
+		m := row
 
-			thisRowOffset := n * i
-			prevRowOffset := thisRowOffset - n
+		for _, keyRune := range keyRunes {
+			m++
 
-			minDistance := matrix[thisRowOffset]
+			if m > maxRows {
+				continue KEY_ITER
+			}
 
-			for j := 0; j < n-1; j++ {
+			prevRow := matrix[m-1]
+			currRow := matrix[m]
 
-				diff := convertBool(query[j] != key[pos])
-
-				replaceCost := matrix[prevRowOffset+j] + diff
-				deleteCost := matrix[prevRowOffset+j+1] + 1
-				insertCost := matrix[thisRowOffset+j] + 1
-
-				dist := min(replaceCost, deleteCost, insertCost)
-
-				if dist < minDistance {
-					minDistance = dist
+			for j, qRune := range queryRunes {
+				cost := 0
+				if keyRune != qRune {
+					cost = 1
 				}
 
-				matrix[thisRowOffset+j+1] = dist
+				currRow[j+1] = min(
+					prevRow[j]+cost, // substitution/match
+					currRow[j]+1,    // insertion
+					prevRow[j+1]+1,  // deletion
+				)
 			}
-
-			if minDistance > maxDistance {
-				continue ITER_CHILDREN
-			}
-
-			i++
 		}
 
-		child.fuzzyRecurse(query, prefix+key, matrix, maxDistance, i, n, results)
+		if matrix[m][queryLen] <= maxDistance {
+			child.fuzzyRecurse2(query, prefix+key, matrix, maxDistance, m, results)
+		}
 	}
 }
 
