@@ -1,18 +1,22 @@
 package main
 
 import (
-	"fmt"
-	"os"
-
-	"github.com/ororsatti/go-searchdex/radix"
+	parsetags "github.com/ororsatti/go-searchdex/parse_tags"
 )
 
-func main() {
-	smap := radix.NewSearchableMap()
-	smap.Set("test", true)
-	smap.Set("testing", true)
+type testStruct struct {
+	id          string `index:"id"`
+	name        string `index:"text"`
+	description string
+}
 
-	smap.Print(os.Stdout)
-	res := smap.FuzzyGet("test", 0)
-	fmt.Println(res)
+func main() {
+	test := testStruct{
+		id:          "123",
+		name:        "Jane",
+		description: "A masterious woman",
+	}
+
+	tp := parsetags.NewTagParser(test)
+	tp.GetID()
 }
