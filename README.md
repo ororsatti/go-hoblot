@@ -7,7 +7,7 @@ A inmemory search index.
 ## On the agenda
 - [ ] Proper tokenizer (distinct between symbols, numbers, and word.
 - [ ] Store token positions (for highlighting purposes)
-- [ ] Index struct tags
+- [x] Index struct tags
 - [ ] Index at byte level
 - [ ] Generic searchable map
 - [ ] Fuzz testing the searchable map (will prob require other bugfixes)
