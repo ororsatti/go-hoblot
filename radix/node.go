@@ -113,19 +113,24 @@ func trackDown(n *node, key string, path []nodePath) (*node, []nodePath) {
 }
 
 func findSplitIndex(src string, dest string) int {
-	for i := 0; ; i++ {
-		if len(src) <= i {
-			return len(src)
-		}
+	srcRunes := []rune(src)
+	destRunes := []rune(dest)
 
-		if len(dest) <= i {
-			return len(dest)
-		}
+	lenSrc := len(srcRunes)
+	lenDest := len(destRunes)
 
-		if dest[i] != src[i] {
+	minLen := lenSrc
+	if lenDest < minLen {
+		minLen = lenDest
+	}
+
+	for i := 0; i < minLen; i++ {
+		if srcRunes[i] != destRunes[i] {
 			return i
 		}
 	}
+
+	return minLen
 }
 
 func (n *node) createPath(key string) *node {
